@@ -1,53 +1,47 @@
 # LangGraph Agent with Chainlit
 
-LangGraphによるシンプルなエージェントを、ChainlitでWebアプリとして利用できるようにします。
+This project allows you to use a simple agent created with LangGraph as a web application using Chainlit.
 
-詳細は以下の記事で解説しています。
+For more details, please refer to the following articles:
 
-- 最初の実装の記事
+- Article on the initial implementation
   - https://zenn.dev/0msys/articles/9873e25a610c5e
-- マルチモーダル対応の記事
+- Article on multimodal support
   - https://zenn.dev/0msys/articles/3d38729aa7f75b
 
+## How to Use
 
-## 使い方
+### Starting the Application
 
-### 起動方法
+Clone the repository.
 
-リポジトリをクローンします。
-
-graph_agent.envを作成し、以下の内容を記述します。
-
+Create a file named graph_agent.env and add the following content:
 ```
 OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 ```
 
-以下のコマンドを実行します。
-
+Run the following command:
 ```
 docker compose up -d
 ```
 
-http://localhost:8000 にアクセスします。
+Access http://localhost:8000.
 
+### Shutting Down
 
-### 終了方法
-
-以下のコマンドを実行する。
-
+Run the following command:
 ```
 docker compose down
 ```
 
-### 開発方法
+### Development
 
-自作Toolを追加するなど、開発を行う場合は、このディレクトリをdevcontainerとして開いてください。
+If you want to develop, such as adding custom Tools, open this directory as a devcontainer.
 
-devcontainerが開いたら、以下のコマンドを実行してください。
+Once the devcontainer is open, run the following command:
 
 ```
 chainlit run -w main.py
 ```
 
-http://localhost:8000 にアクセスすると、画面を確認しながら開発を行うことができます。
-
+You can then access http://localhost:8000 to view the interface while developing.

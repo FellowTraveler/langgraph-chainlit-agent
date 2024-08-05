@@ -14,13 +14,13 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
 
 
-# 使用するモデルを選択。
+# Select the model to use.
 MODEL = "gpt-4o-mini"
 # MODEL = "gpt-4o"
 
 
-# Agentの使用できるToolを定義
-# 必要に応じて、他のToolを追加してください
+# Define the Tools that the Agent can use
+# Add other Tools as needed
 @tool
 async def ddg_search(query: str) -> str:
     """Searches DuckDuckGo for a query and returns the results."""
@@ -69,13 +69,13 @@ async def vision(prompt: str, image_paths: Sequence[str]) -> str:
     
     return response.json()["choices"][0]["message"]["content"]
 
-# toolを配列にまとめて、ToolExecutorに渡す
-# toolを追加した場合は、忘れずにここに追加してください
+# Gather the tools into an array and pass them to ToolExecutor
+# If you add new tools, don't forget to add them here as well
 tools = [ddg_search, vision]
 tool_executor = ToolExecutor(tools)
 
 
-# 以降はlanggraphのサンプルコードをほぼそのまま使用しています
+# From here on, we're using the langgraph sample code almost as-is
 # https://github.com/langchain-ai/langgraph/blob/main/examples/async.ipynb
 
 # We will set streaming=True so that we can stream tokens
@@ -129,7 +129,7 @@ async def call_tool(state):
     # We return a list, because this will get added to the existing list
     return {"messages": [function_message]}
 
-# main.pyから呼び出して使いたいので、ここだけ関数化
+# We're making this part into a function so it can be called from main.py
 def create_agent():
     # Define a new graph
     workflow = StateGraph(AgentState)
@@ -172,5 +172,5 @@ def create_agent():
     # meaning you can use it as you would any other runnable
     app = workflow.compile()
 
-    # appを返す
+    # Return the app
     return app
