@@ -6,10 +6,10 @@ from services.chainlit_agent import ChainlitAgent
 
 @cl.on_chat_start
 async def on_chat_start():
-    # フォルダを用意
+    # Prepare folder
     dir_path = f"./.files/{cl.user_session.get('id')}/"
     os.makedirs(dir_path, exist_ok=True)
-    system_prompt = "あなたは最高のアシスタントチャットボットです。どんな依頼にも丁寧に最高のサービスを提供します。"
+    system_prompt = "You are the best assistant chatbot. You provide the highest quality service for any request politely."
     chainlit_agent = ChainlitAgent(
         system_prompt=system_prompt,
         file_path=dir_path,

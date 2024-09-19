@@ -1,91 +1,88 @@
 # LangGraph Agent with Chainlit
 
-LangGraphによるシンプルなエージェントを、ChainlitでWebアプリとして利用できるようにします。
+This allows you to use a simple agent created with LangGraph as a web application using Chainlit.
 
-詳細は以下の記事で解説しています。
+Detailed explanations are provided in the following articles:
 
-- 最初の実装の記事
+- Article on the initial implementation
   - https://zenn.dev/0msys/articles/9873e25a610c5e
-- マルチモーダル対応の記事
+- Article on multimodal support
   - https://zenn.dev/0msys/articles/3d38729aa7f75b
-- ライブラリアップデートの記事
+- Article on library updates
   - https://zenn.dev/0msys/articles/49ebb76cea1af6
-- VOICEVOXによるTTSの記事
+- Article on TTS using VOICEVOX
   - https://zenn.dev/0msys/articles/ac55214d8d95cd
 
-## 使い方
+## How to Use
 
-### 起動方法
+### How to Start
 
-リポジトリをクローンします。
+Clone the repository.
 
-graph_agent.envを作成し、以下の内容を記述します。
+Create graph_agent.env and write the following content:
 
 ```
 OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 ```
 
-以下のコマンドを実行します。
+Execute the following command:
 
 ```
 docker compose up -d
 ```
 
-http://localhost:8000 にアクセスします。
+Access http://localhost:8000.
 
+### How to Stop
 
-### 終了方法
-
-以下のコマンドを実行する。
+Execute the following command:
 
 ```
 docker compose down
 ```
 
-### 開発方法
+### How to Develop
 
-graph_agent.envに以下を追記します。
+Add the following to graph_agent.env:
 
 ```
 VOICEVOX_API_DOMAIN=http://voicevox_engine-dev:50021/
 ```
 
-自作Toolを追加するなど、開発を行う場合は、このディレクトリをdevcontainerとして開いてください。
+If you want to develop, such as adding custom Tools, please open this directory as a devcontainer.
 
-devcontainerが開いたら、以下のコマンドを実行してください。
+Once the devcontainer is open, execute the following command:
 
 ```
 chainlit run -w src/main.py
 ```
 
-http://localhost:8000 にアクセスすると、画面を確認しながら開発を行うことができます。
+You can develop while checking the screen by accessing http://localhost:8000.
 
+#### Confirming Agent Operation Only
 
-#### Agentのみの起動確認
+Since both Chainlit and LangGraph are frequently updated, we have prepared a method to start only the Agent to make it easier to identify which is causing issues if it doesn't work.
 
-ChainlitとLangGraphどちらも更新頻度が高いため、動かなかったときにどちらが原因かを特定しやすくするために、Agentのみを起動する方法を用意しています。
-
-開発コンテナ上で以下のコマンドを実行してください。
+Execute the following command on the development container:
 
 ```
 python src/test_agent.py
 ```
 
-これで、Agentのみが起動し、動作を確認することができます。
-"stream" or "invoke"のどちらかを引数に渡すことで、それぞれの動作を確認することができます。
+This will start only the Agent, allowing you to confirm its operation.
+You can pass either "stream" or "invoke" as an argument to check each operation.
 
 ```
 python src/test_agent.py invoke
 ```
-(何も渡さない場合は、"stream"がデフォルトで実行されます。)
+(If nothing is passed, "stream" will be executed by default.)
 
+#### Confirming VOICEVOX Operation Only
 
-#### VOICEVOXのみの動作確認
-
-VOICEVOXのみの動作確認を行うためには、以下のコマンドを実行してください。
+To confirm only the operation of VOICEVOX, execute the following command:
 
 ```
 python src/services/voicevox.py
 ```
 
-問題が無ければ、output.wavが生成されます。
+If there are no issues, output.wav will be generated.

@@ -9,8 +9,8 @@ from openai import OpenAI
 
 class SpeakerData:
     """
-    SpeakerDataクラス
-    VOICEVOXのspeaker情報を取得するためのクラス
+    SpeakerData class
+    Class for retrieving speaker information from VOICEVOX
     """
 
     def __init__(self, domain: str = None):
@@ -20,7 +20,7 @@ class SpeakerData:
         self.data = self._load_data()
 
     def _load_data(self) -> dict:
-        """speakerの一覧をAPIから取得し、辞書形式で返す"""
+        """Retrieve the list of speakers from the API and return in dictionary format"""
         speakers_json = requests.get(url=f"{self.domain}speakers").json()
         return {
             item["name"]: {style["name"]: style["id"] for style in item["styles"]}
@@ -28,7 +28,7 @@ class SpeakerData:
         }
 
     def get_all_speaker_and_style_list(self) -> list:
-        """speakerとstyleの組み合わせに対するspeaker_idのリストを取得"""
+        """Get a list of speaker_ids for combinations of speakers and styles"""
         return [
             {
                 f"{speaker}-{style}": self.data[speaker][style]
@@ -38,7 +38,7 @@ class SpeakerData:
         ]
 
     def get_all_speaker_and_style_dict(self) -> dict:
-        """speakerとstyleの組み合わせに対するspeaker_idの辞書を取得"""
+        """Get a dictionary of speaker_ids for combinations of speakers and styles"""
         return {
             f"{speaker} - {style}": str(self.data[speaker][style])
             for speaker in self.data
@@ -48,8 +48,8 @@ class SpeakerData:
 
 class Voicevox:
     """
-    Voicevoxクラス
-    VOICEVOX APIを利用するためのクラス
+    Voicevox class
+    Class for using the VOICEVOX API
     """
 
     def __init__(
@@ -66,7 +66,7 @@ class Voicevox:
     def _get_speaker_id(
         self, speaker_name: str, style_name: str, speaker_id: str
     ) -> str:
-        """speaker_idを取得するためのヘルパーメソッド"""
+        """Helper method to get speaker_id"""
         if speaker_id:
             return speaker_id
         elif speaker_name and style_name:
@@ -78,7 +78,7 @@ class Voicevox:
             )
 
     def _post_audio_query(self, text: str) -> json:
-        """音声クエリをPOSTし、結果を返す"""
+        """POST audio query and return the result"""
         response = requests.post(
             url=f"{self.domain}audio_query",
             params={"text": text, "speaker": self.speaker_id},
@@ -86,7 +86,7 @@ class Voicevox:
         return response.json()
 
     def _post_synthesis(self, text: str) -> bytes:
-        """音声合成を行い、結果のバイナリデータを返す"""
+        """Perform voice synthesis and return the binary data result"""
         query = self._post_audio_query(text)
         response = requests.post(
             url=f"{self.domain}synthesis",
@@ -98,7 +98,7 @@ class Voicevox:
     def post_synthesis_returned_in_base64(
         self, text: str, use_manuscript: bool = False
     ) -> str:
-        """テキストを入力し、音声ファイルを生成してbase64形式で返す"""
+        """Input text, generate audio file, and return in base64 format"""
         if use_manuscript:
             text = self._create_manuscript(text)
         audio_data = self._post_synthesis(text)
@@ -107,7 +107,7 @@ class Voicevox:
     def post_synthesis_returned_in_file(
         self, text: str, use_manuscript: bool = False, file_name: str = "output"
     ) -> str:
-        """テキストを入力し、音声ファイルを生成してファイルパスを返す"""
+        """Input text, generate audio file, and return the file path"""
         if use_manuscript:
             text = self._create_manuscript(text)
         audio_data = self._post_synthesis(text)
@@ -117,28 +117,28 @@ class Voicevox:
         return file_path
 
     def _create_manuscript(self, text: str) -> str:
-        """テキストを入力し、読み上げ原稿を生成して返す"""
+        """Input text and generate a script for reading aloud"""
         client = OpenAI()
         system_prompt = re.sub(
             r"\n\s*",
             "\n",
-            """あなたは読み上げテキスト生成器です。ユーザーから提供された文章を、読み上げ原稿を返答してください。その際以下のルールに従ってください。
-                    - アルファベットの固有名詞はカタカナにし、漢字はひらがなにするなど、読み間違いをしないようにする
-                    - URLやコードブロックについては、そのまま読み上げるのではなく、画面を確認するように促すなど言い換えを行う
-                    入力文章：""",
+            """You are a text-to-speech generator. Please respond with a script to read aloud the text provided by the user. Follow these rules:
+                    - Convert alphabetic proper nouns to katakana and kanji to hiragana to avoid mispronunciation
+                    - For URLs and code blocks, instead of reading them as-is, rephrase to prompt the viewer to check the screen
+                    Input text:""",
         )
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"{text}\n\n読み上げ原稿\n："},
+                {"role": "user", "content": f"{text}\n\nScript for reading aloud:"},
             ],
         )
         return completion.choices[0].message.content
 
 
 if __name__ == "__main__":
-    voicevox = Voicevox(speaker_name="ずんだもん", style_name="ノーマル")
-    text = "こんにちは"
+    voicevox = Voicevox(speaker_name="Zundamon", style_name="Normal")
+    text = "Hello"
     audio_file = voicevox.post_synthesis_returned_in_file(text, use_manuscript=True)
     print(audio_file)

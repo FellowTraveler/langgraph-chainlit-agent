@@ -1,34 +1,34 @@
-# ベースイメージとしてPython 3.12を使用
+# Use Python 3.12 as the base image
 FROM python:3.12-bookworm
 
-# ビルド時の引数を定義
+# Define build-time arguments
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# ユーザーとグループを作成
+# Create user and group
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
-# 環境変数を設定
+# Set environment variables
 ENV PYTHONUSERBASE=/home/$USERNAME/.local
 ENV PATH=$PYTHONUSERBASE/bin:$PATH
 
-# ユーザーを切り替え
+# Switch to the user
 USER $USERNAME
 
-# 作業ディレクトリを設定
+# Set working directory
 WORKDIR /workspace
 
-# 必要なパッケージをインストール
+# Install necessary packages
 RUN pip install --user --upgrade pip setuptools poetry
 
-# ソースコードをコピー
+# Copy source code
 COPY --chown=$USERNAME:$USERNAME . /workspace
 
-# 依存関係をインストール
+# Install dependencies
 RUN poetry config virtualenvs.create true \
     && poetry install --no-dev --no-interaction --no-ansi
 
-# アプリケーションを実行
+# Run the application
 CMD ["poetry", "run", "chainlit", "run", "src/main.py"]

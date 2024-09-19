@@ -18,7 +18,7 @@ class State(TypedDict):
 
 class SingleAgent:
     """
-    LangGraphを使用したSingle Agentのクラス
+    Single Agent class using LangGraph
     """
 
     def __init__(self, system_prompt: str, model_version: str = "gpt-4o-mini"):
@@ -64,30 +64,30 @@ class SingleAgent:
 
     async def astream_events(self, inputs):
         """
-        StreamingでLLMの出力を取得する
+        Get LLM output using Streaming
 
         Args:
-            inputs: HumanMessageのリスト
+            inputs: List of HumanMessages
 
         Yields:
-            dict: Streaming出力の情報
+            dict: Information of Streaming output
         """
         output = ""
         async for event in self.app.astream_events(
-            # inputsの先頭にsystem_promptを追加
+            # Add system_prompt to the beginning of inputs
             {"messages": [SystemMessage(content=self.system_prompt)] + inputs},
             version="v1",
         ):
             kind = event["event"]
             if kind == "on_chat_model_stream":
-                # LLMのStreaming出力を取得
+                # Get LLM Streaming output
                 content = event["data"]["chunk"].content
                 if content:
                     output = {"kind": kind, "content": content}
                     yield output
 
             elif kind == "on_tool_start" and event["name"] in self.tool_names:
-                # Toolの開始イベントを取得
+                # Get Tool start event
                 output = {
                     "kind": kind,
                     "tool_name": event["name"],
@@ -98,7 +98,7 @@ class SingleAgent:
                 yield output
 
             elif kind == "on_tool_end" and event["name"] in self.tool_names:
-                # Toolの終了イベントを取得
+                # Get Tool end event
                 output = {
                     "kind": kind,
                     "tool_name": event["name"],
@@ -111,13 +111,13 @@ class SingleAgent:
 
     async def ainvoke(self, inputs: list):
         """
-        LLMの出力を取得する
+        Get LLM output
 
         Args:
-            inputs: Messageのリスト
+            inputs: List of Messages
 
         Returns:
-            dict: LLMの出力とToolの出力
+            dict: LLM output and Tool output
         """
         output_message = ""
         tool_outputs = []

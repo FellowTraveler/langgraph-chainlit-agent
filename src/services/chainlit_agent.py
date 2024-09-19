@@ -16,8 +16,8 @@ class ChainlitAgent(SingleAgent):
         self,
         system_prompt: str,
         speak: bool = False,
-        speaker_name: str = "四国めたん",
-        style_name: str = "ノーマル",
+        speaker_name: str = "Shikoku Metan",
+        style_name: str = "Normal",
         file_path: str = "./",
     ):
         super().__init__(system_prompt=system_prompt)
@@ -30,34 +30,34 @@ class ChainlitAgent(SingleAgent):
 
     async def on_chat_start(self):
         """
-        チャットが開始されたときに呼び出される関数
+        Function called when the chat starts
         """
-        # Settingsの初期値を設定
+        # Set initial values for Settings
         settings = await cl.ChatSettings(
             [
                 Switch(
                     id="Speak",
-                    label="読み上げ",
+                    label="Text-to-Speech",
                     initial=False,
-                    description="読み上げを行うか選択してください。",
+                    description="Please select whether to use text-to-speech.",
                 ),
                 Select(
                     id="Speaker_ID",
                     label="VOICEVOX - Speaker Name and Style",
                     items=SpeakerData().get_all_speaker_and_style_dict(),
                     initial_value="2",
-                    description="読み上げに使用するキャラクターとスタイルを選択してください。",
+                    description="Please select the character and style to use for text-to-speech.",
                 ),
             ]
         ).send()
-        # Settingsの初期値を元に、設定を更新
+        # Update settings based on initial values
         await self.on_settings_update(settings)
 
     async def on_settings_update(self, settings: dict):
         """
-        Settingsが更新されたときに呼び出される関数
+        Function called when Settings are updated
         """
-        # Settingsの値を取得し、VOICEVOXの設定を更新
+        # Get Settings values and update VOICEVOX settings
         self.speak = settings["Speak"]
         self.voicevox_service = Voicevox(
             speaker_id=settings["Speaker_ID"], file_path=self.file_path
@@ -65,26 +65,26 @@ class ChainlitAgent(SingleAgent):
 
     async def on_message(self, msg: cl.Message, inputs: list):
         """
-        メッセージが送信されたときに呼び出される関数
+        Function called when a message is sent
         """
 
         content = msg.content
 
-        # 添付ファイルの情報を取得
+        # Get information about attached files
         attachment_file_text = ""
 
         for element in msg.elements:
-            attachment_file_text += f'- {element.name} (path: {element.path.replace("/workspace", ".")})\n'  # agentが参照するときは./files/***/***.pngのようになるので、それに合わせる
+            attachment_file_text += f'- {element.name} (path: {element.path.replace("/workspace", ".")})\n'  # Adjust to match ./files/***/***.png format when the agent refers to it
 
         if attachment_file_text:
-            content += f"\n\n添付ファイル\n{attachment_file_text}"
+            content += f"\n\nAttached files\n{attachment_file_text}"
 
-        # 　現在の日時を取得(JST)
+        # Get current date and time (JST)
         now = datetime.now(pytz.timezone("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M:%S %Z")
 
-        content += f"\n\n(入力日時: {now})"
+        content += f"\n\n(Input time: {now})"
 
-        # ユーザーのメッセージを履歴に追加
+        # Add user's message to history
         inputs.append(HumanMessage(content=content))
 
         res = cl.Message(content="")
@@ -103,14 +103,14 @@ class ChainlitAgent(SingleAgent):
 
         await res.send()
 
-        # 読み上げが有効な場合、読み上げファイルを生成し、メッセージに追加
+        # If text-to-speech is enabled, generate the speech file and add it to the message
         if self.speak:
             file_path = self.voicevox_service.post_synthesis_returned_in_file(
-                text=res.content, use_manuscript=True, file_name="読み上げ"
+                text=res.content, use_manuscript=True, file_name="Text-to-Speech"
             )
             elements = [
                 cl.Audio(
-                    name="読み上げ", path=file_path, display="inline", auto_play=True
+                    name="Text-to-Speech", path=file_path, display="inline", auto_play=True
                 ),
             ]
             res.elements = elements

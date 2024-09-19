@@ -8,13 +8,13 @@ from services.agent import SingleAgent
 
 async def main(mode: str):
     """
-    Agentの動作確認を行うための関数。
-    exitと入力することで終了する。
+    Function to verify the operation of the Agent.
+    Enter 'exit' to terminate.
 
     Args:
-        mode (str): Agentの動作モード
-            - stream: 出力がストリーミング表示されるモード
-            - invoke: 出力が一括表示されるモード
+        mode (str): Agent operation mode
+            - stream: Mode where output is displayed as a stream
+            - invoke: Mode where output is displayed all at once
 
     Returns:
         None
@@ -24,11 +24,11 @@ async def main(mode: str):
     print(f"mode: {mode}")
     inputs = []
     agent = SingleAgent(
-        system_prompt="あなたは最高のアシスタントチャットボットです。",
+        system_prompt="You are the best assistant chatbot.",
     )
 
     while True:
-        print("チャットボットへの入力:")
+        print("Input to the chatbot:")
         query = input()
         if query == "exit":
             break
@@ -62,7 +62,7 @@ async def main(mode: str):
                     print(f"Tool {tool_output['name']} output:")
                     print(tool_output["output"])
                     print("\n")
-        
+
         print("\n\n")
         inputs.append(AIMessage(content=output_text))
 
@@ -71,6 +71,6 @@ if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else None
     if mode not in ["stream", "invoke"] and mode is not None:
         print("Invalid mode. Use 'stream' or 'invoke'.")
-        # 処理の終了
+        # End the process
         sys.exit(1)
     asyncio.run(main(mode))
